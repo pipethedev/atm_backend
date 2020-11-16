@@ -1,0 +1,37 @@
+{
+  "name": "allthingsmore",
+  "version": "1.0.0",
+  "description": "A simple betting app",
+  "main": "server.js",
+  "scripts": {
+    "start": "nodemon server.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "Betting",
+    "Allthingsmore",
+    "Win"
+  ],
+  "author": "Muritala David",
+  "license": "MIT",
+  "dependencies": {
+    "axios": "^0.21.0",
+    "body-parser": "^1.19.0",
+    "cors": "^2.8.5",
+    "crypto": "^1.0.1",
+    "dotenv": "^8.2.0",
+    "express": "^4.17.1",
+    "express-validator": "^6.6.1",
+    "https": "^1.0.0",
+    "jsonwebtoken": "^8.5.1",
+    "mongodb": "^3.6.3",
+    "mongoose": "^5.10.13",
+    "node-fetch": "^2.6.1",
+    "nodemailer-express-handlebars": "^4.0.0",
+    "nodemon": "^2.0.6"
+  },
+  "devDependencies": {
+    "bcrypt": "^5.0.0",
+    "nodemailer": "^6.4.15"
+  }
+}
