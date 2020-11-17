@@ -1,9 +1,11 @@
 require('dotenv').config();
 const fetch = require('node-fetch');
+const functions = require('../helpers/not.js');
 const { check, validationResult} = require("express-validator/check");
 const User = require('../models/user.model.js');
 const Bet = require('../models/bet.model.js');
 const Wallet = require('../models/wallet.model.js');
+const Notification = require('../models/notfications.model');
 const Limit = require('../models/limit.model.js');
 const bcrypt = require('bcrypt');
 const crypto = require('crypto');
@@ -32,6 +34,13 @@ const handlebarOptions = {
 };
 
 transporter.use('compile', hbs(handlebarOptions));
+
+exports.getNotification = async (req, res) => {
+    Notification.find({user_id : req.params.id}, (err, result) => {
+        if(err) throw err;
+        return res.send(result);
+    });
+}
 
 exports.createUser = async (req, res) => {
     const data = req.body;
@@ -73,20 +82,6 @@ exports.createUser = async (req, res) => {
                             userToken: '',
                             resetPasswordExpires: '',
                         };
-                        const wallet = new Wallet({
-                            email : data.email,
-                            value : 0,
-                            locked : false
-                        });
-                         wallet.save().then(data => {
-                            return res.status(201).send({
-                                message : "Wallet created"
-                            });
-                        }).catch(err => {
-                            return res.status(500).send({
-                                message : "Wallet could not be created"
-                            });
-                        });
                         registerUserToDatabase(body, res);
                     }else{
                         return res.status(400).send(json)
@@ -236,9 +231,12 @@ exports.resetPassword = async (req, res) => {
             user.save(async (err) => {
                 if(err) return res.send(err);
                 else{
-                    return res.status(204).send({
-                        message : 'Password Changed Successfully'
-                    })
+                    let send = functions.sendNot('Password Change Successful', 'password_change', user._id, res);
+                    if(send){
+                        return res.status(204).send({
+                            message : 'Password Changed Successfully'
+                        })
+                    }
                 }
             })
         });
@@ -278,6 +276,7 @@ exports.updateUser = async (req, res) => {
                 }
                 jwt.sign(payload, "secret Key", { expiresIn: '21 days'}, (err, token)=>{
                     if (err) throw err;
+                    functions.sendNot('Profile Updated', 'update_change', data._id, res);
                     res.status(200).json({
                         status : 200,
                         token
@@ -408,16 +407,28 @@ exports.blockUsers = async (req, res) => {
 
 async function registerUserToDatabase(body, res) {
     const user = new User(body);
-        user.save().then(data => {
-            res.status(200).send({
-                status : 200,
-                message: "User successfully created"
+    user.save((err, result) => {
+        if (err) return res.send(err);
+        else {
+            const wallet = new Wallet({
+                user_id : result._id,
+                value : 0,
+                locked : false
             });
-        }).catch(err => {
-            res.status(500).send({
-                message: err.message || "Some error occurred while creating the User."
-            });
-        });
+            let notification = functions.sendNot('Welcome to A.T.M', 'welcome', result._id, res);
+            if(notification){
+                wallet.save().then(data => {
+                    return res.status(201).send({
+                        message : "Wallet and account created"
+                    });
+                }).catch(err => {
+                    return res.status(500).send({
+                        message : "Wallet and account could not be created"
+                    });
+                });
+            }
+        }
+    });
 }
 
 async function verifyRefreshToken(refreshToken, req, res, next) {
@@ -440,3 +451,6 @@ async function verifyRefreshToken(refreshToken, req, res, next) {
         next()
     })
 }
+
+
+

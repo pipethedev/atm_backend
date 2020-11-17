@@ -57,4 +57,7 @@ module.exports = (app) => {
 
     //Delete user
     app.delete('/api/users/:userId', users.deleteUser);
+
+    //retrieve all notification
+    app.get('/api/users/notifications/:id', users.getNotification);
 }

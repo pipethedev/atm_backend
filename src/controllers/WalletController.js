@@ -1,4 +1,5 @@
 const fetch = require('node-fetch');
+const functions = require('../helpers/not.js');
 const Wallet = require('../models/wallet.model.js');
 
 exports.getWallet = async (req, res) => {
@@ -42,17 +43,18 @@ exports.cashoutWallet = async (req, res) => {
         .then(json => {
             if(json.status === 'success'){
                 if(performTaskOnWallet("debit", req.body.amount, req.params.id, res)){
+                    functions.sendNot(`A sum of ${req.body.amount} has been sent to your account`, 'cashout', req.params.id, res);
                     return res.send({
                         status : 200,
                         json
                     });
                 }else{
-                    return res.status(422).send({
+                    return res.status(200).send({
                         message : "Insufficient funds"
                     })
                 }
             }else{
-                return res.status(422).send({
+                return res.status(200).send({
                     message : "Invalid Details"
                 })
             }
@@ -100,11 +102,7 @@ async function performTaskOnWallet(type, amount, id, res) {
             let send = await Wallet.updateOne({
                 "user_id": id
             }, newvalues);
-            if(send){
-                return true;
-            }else{
-                return false;
-            }
+            return !!send;
         }
     });
 }
