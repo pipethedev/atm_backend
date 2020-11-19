@@ -8,4 +8,6 @@ module.exports = (app) => {
 
     app.route('/api/bet/:id').get(bet.getBet);
 
+    app.route('/api/bet/user/:id').get(bet.getBetUser);
+
 }

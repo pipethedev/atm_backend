@@ -67,8 +67,14 @@ exports.makeBet = (req, res) => {
     // return res.send(type);
     taskOnWallet(req.body.user_id, amountPlayed, savedAmount, type, res)
     .then(r => {
+        let data;
         let register = registerPrediction(type, shuffle(main), random_number,req.body.user_id, res);
-        let bet = registerBet(colorSelection, amountPlayed, numberSelection, res, req.body.user_id);
+        if (type === true) {
+             data = savedAmount - (0.4 * savedAmount);
+        } else {
+             data = savedAmount - (0.3 * savedAmount) + 20 ;
+        }
+        let bet = registerBet(shuffle(main), type, data, colorSelection, amountPlayed, numberSelection, res, req.body.user_id);
         if(register && bet){
             return res.send({
                 status : 201,
@@ -84,6 +90,12 @@ exports.makeBet = (req, res) => {
 
 exports.getBet = (req, res) => {
     Prediction.find({"user_id" : req.params.id}, (err, result) => {
+        return res.send(result);
+    });
+}
+
+exports.getBetUser = (req, res) => {
+    Bet.find({"user_id" : req.params.id}, (err, result) => {
         return res.send(result);
     });
 }
@@ -150,8 +162,10 @@ async function fundAdmin(id, amount, res){
                 return res.status(404).send({
                     message: "User not found with id " + id
                 });
+            }else{
+               return res.send(user);
             }
-            res.send(user);
+
         }).catch(err => {
             return res.status(500).send({
                 message: err.message ||  "Error updating user with id " + id
@@ -171,8 +185,11 @@ function registerPrediction(win, shuffle1, random_number, user_id) {
     return !!prediction.save();
 }
 
-function registerBet(colorSelection, amountPlayed, numberSelection, res, id) {
+function registerBet(computer, type, data, colorSelection, amountPlayed, numberSelection, res, id) {
     const bet = new Bet({
+        computer : computer,
+        type : type,
+        gain_lost : data,
         colors : colorSelection,
         amount : amountPlayed,
         qty : numberSelection,

@@ -46,7 +46,7 @@ app.use(cors({
 
 // define a simple route
 app.get('/', (req, res) => {
-    res.json({"message": "Welcome to Backend."});
+    return res.json({"message": "Welcome to Backend."});
 });
 
 
