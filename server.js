@@ -1,6 +1,7 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors');
+const robots = require('express-robots-txt');
 require('dotenv').config();
 
 // create express app
@@ -14,6 +15,8 @@ app.use(bodyParser.json())
 
 //enable cors
 app.use(cors())
+
+app.use(robots({ UserAgent: '*', Disallow: '/' }))
 
 // Configuring the database
 const dbConfig = require('./config/database.config.js');
