@@ -61,11 +61,11 @@ app.get('/favicon.ico', (req, res) => res.status(204));
 
 
 
-require('./app/src/routes/user.routes.js')(app);
+require('./src/routes/user.routes.js')(app);
 
-require('./app/src/routes/wallet.routes.js')(app);
+require('./src/routes/wallet.routes.js')(app);
 
-require('./app/src/routes/bet.routes.js')(app);
+require('./src/routes/bet.routes.js')(app);
 
 
 

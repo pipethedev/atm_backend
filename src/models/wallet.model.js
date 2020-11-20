@@ -6,6 +6,7 @@ const WalletSchema = mongoose.Schema({
         ref: "User"
     },
     value : Number,
+    debitable : Number,
     locked : Boolean,
 },{
     timestamps : true
