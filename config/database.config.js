@@ -1,3 +1,3 @@
 module.exports = {
-    url: 'mongodb://localhost:27017/bet?retryWrites=true&w=majority'
+    url: 'mongodb+srv://admin:allthingsmore202@cluster0.qrb1g.mongodb.net/allthingsmore?retryWrites=true&w=majority'
 }
