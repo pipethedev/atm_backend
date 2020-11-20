@@ -33,6 +33,9 @@
     "path": "^0.12.7",
     "serve-favicon": "^2.5.0"
   },
+  "engines": {
+    "node": "12.18.4"
+  },
   "devDependencies": {
     "bcrypt": "^5.0.0",
     "nodemailer": "^6.4.15"
