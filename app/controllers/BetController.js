@@ -70,18 +70,17 @@ exports.makeBet = (req, res) => {
         let data;
         let register = registerPrediction(type, shuffle(main), random_number,req.body.user_id, res);
         if (type === true) {
-             data = savedAmount - (0.4 * savedAmount);
+             data = savedAmount - (0.45 * savedAmount);
         } else {
-             data = savedAmount - (0.3 * savedAmount) + 20 ;
+             data = savedAmount - (0.31 * savedAmount) + 20 ;
         }
-        let bet = registerBet(shuffle(main), type, data, colorSelection, amountPlayed, numberSelection, res, req.body.user_id);
+
+        let bet = registerBet(shuffle(main), type, Math.round(data), colorSelection, amountPlayed, numberSelection, res, req.body.user_id);
         if(register && bet){
             return res.send({
                 status : 201,
-                type,
+                data : Math.round(data),
                 message : 'Bet played successfully',
-                main,
-                random
             });
         }
     });
@@ -91,13 +90,13 @@ exports.makeBet = (req, res) => {
 exports.getBet = (req, res) => {
     Prediction.find({"user_id" : req.params.id}, (err, result) => {
         return res.send(result);
-    });
+    }).sort({"_id":-1});
 }
 
 exports.getBetUser = (req, res) => {
     Bet.find({"user_id" : req.params.id}, (err, result) => {
         return res.send(result);
-    });
+    }).sort({"_id":-1});
 }
 
 exports.computerPlay = (req, res) => {
@@ -130,17 +129,18 @@ async function taskOnWallet(id , cash, cash2, type, res){
     let newvalues
     let data;
     Wallet.findOne({"user_id" : id }, async (err, result) => {
+
         if((result.value > cash2) || (result.value === cash2)) {
             if (type === true) {
-                data = cash2 - (0.4 * cash2);
-                console.log(data)
+                data = Math.round(cash2 - (0.45 * cash2));
                 newvalues = {$set: {value: parseInt(result.value + data)}};
+                //await fundAdmin('5fb043e99ac4ca626004e00f', data, res, type);
             } else {
-                data = cash2 - (0.3 * cash2);
-                console.log(data)
+                data = Math.round(cash2 - (0.31 * cash2));
                 newvalues = {$set: {value: parseInt(result.value - parseInt(data + 20))}};
-                await fundAdmin('5fb043e99ac4ca626004e00f', data, res);
+                //await fundAdmin('5fb043e99ac4ca626004e00f', data, res, type);
             }
+
             await Wallet.updateOne({
                 "user_id": id
             }, newvalues, (err) => {
@@ -152,12 +152,20 @@ async function taskOnWallet(id , cash, cash2, type, res){
     });
 }
 
-async function fundAdmin(id, amount, res){
+async function fundAdmin(id, amount, res, type){
     User.findOne({"_id" : id }, async (err, result) => {
+        let data;
+        if(type){
+            data = {
+                wallet_value : result.wallet_value + amount
+            };
+        }else{
+            data = {
+                wallet_value : parseInt(result.wallet_value - amount)
+            };
+        }
         if (err) throw err;
-        await User.findByIdAndUpdate(id, {
-            wallet_value : result.wallet_value + amount
-        },{new : true}).then(user => {
+        await User.findByIdAndUpdate(id, data,{new : true}).then(user => {
             if(!user) {
                 return res.status(404).send({
                     message: "User not found with id " + id

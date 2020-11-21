@@ -12,4 +12,6 @@ module.exports = (app) => {
 
     app.route('/api/wallet/lock/:id').put(wallet.lockWallet);
 
+    app.route('/api/wallet/debit/:id').put(wallet.updateDebit);
+
 }

@@ -43,7 +43,7 @@ exports.cashoutWallet = async (req, res) => {
         .then(json => {
             if(json.status === 'success'){
                 if(performTaskOnWallet("debit", req.body.amount, req.params.id, res)){
-                    functions.sendNot(`A sum of ${req.body.amount} has been sent to your account`, 'cashout', req.params.id, res);
+                    functions.sendNot('Money withdraw', 'cashout', req.params.id, `A sum of ${req.body.amount} has been sent to your account`);
                     return res.send({
                         status : 200,
                         json
@@ -73,6 +73,22 @@ exports.lockWallet = async (req, res) => {
         if (err) throw err;
         return res.status(200).send({
             message : "Wallet locked"
+        });
+    });
+}
+
+exports.updateDebit = async (req, res)  => {
+    await updateDebitable(req, res, req.params.id, req.body.debitable);
+}
+
+
+async function updateDebitable(req, res, id, amount){
+    await Wallet.updateOne({
+        "user_id" : id
+    }, {$set: {debitable: amount }}, (err) => {
+        if (err) throw err;
+        return res.status(200).send({
+            message : amount
         });
     });
 }

@@ -29,7 +29,7 @@ const transporter = nodemailer.createTransport({
 });
 
 const handlebarOptions = {
-    viewPath: './src/templates/',
+    viewPath: './app/templates/',
     extName: '.hbs'
 };
 
@@ -59,6 +59,7 @@ exports.createUser = async (req, res) => {
         "destbankcode": data.bank_code,
         "PBFPubKey": process.env.RAVE_PUBKEY
     }
+
     await bcrypt.hash(data.password, 10, async (err, hash) => {
         await fetch('https://api.ravepay.co/flwv3-pug/getpaidx/api/resolve_account', {
             method: 'POST',
@@ -199,7 +200,7 @@ exports.forgotPassword = async (req, res) => {
                         if(error) {
                            return res.json(error);
                         }else{
-                            res.send({
+                            return res.send({
                                 userToken: token,
                                 resetPasswordExpires: Date.now() + 3600000,
                                 message : `An e-mail has been sent to ${userData.email} for further instructions`
@@ -231,7 +232,7 @@ exports.resetPassword = async (req, res) => {
             user.save(async (err) => {
                 if(err) return res.send(err);
                 else{
-                    let send = functions.sendNot('Password Change Successful', 'password_change', user._id, res);
+                    let send = functions.sendNot('Password Change Successful', 'password_change', user._id, 'Password Change successful ✔✔');
                     if(send){
                         return res.status(204).send({
                             message : 'Password Changed Successfully'
@@ -276,7 +277,7 @@ exports.updateUser = async (req, res) => {
                 }
                 jwt.sign(payload, "secret Key", { expiresIn: '21 days'}, (err, token)=>{
                     if (err) throw err;
-                    functions.sendNot('Profile Updated', 'update_change', data._id, res);
+                    functions.sendNot('Profile Updated', 'update_change', data._id, 'You have successfully updated your profile');
                     res.status(200).json({
                         status : 200,
                         token
@@ -405,6 +406,7 @@ exports.blockUsers = async (req, res) => {
 }
 
 
+
 async function registerUserToDatabase(body, res) {
     const user = new User(body);
     user.save((err, result) => {
@@ -412,10 +414,11 @@ async function registerUserToDatabase(body, res) {
         else {
             const wallet = new Wallet({
                 user_id : result._id,
+                debitable : 0,
                 value : 0,
                 locked : false
             });
-            let notification = functions.sendNot('Welcome to A.T.M', 'welcome', result._id, res);
+            let notification = functions.sendNot('Welcome to A.T.M', 'welcome', result._id, 'Thank you for joining A.T.M');
             if(notification){
                 wallet.save().then(data => {
                     return res.status(201).send({
@@ -430,6 +433,8 @@ async function registerUserToDatabase(body, res) {
         }
     });
 }
+
+
 
 async function verifyRefreshToken(refreshToken, req, res, next) {
     if (!req.headers['authorization']) {
