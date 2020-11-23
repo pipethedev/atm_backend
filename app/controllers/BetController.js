@@ -134,11 +134,11 @@ async function taskOnWallet(id , cash, cash2, type, res){
             if (type === true) {
                 data = Math.round(cash2 - (0.45 * cash2));
                 newvalues = {$set: {value: parseInt(result.value + data)}};
-                //await fundAdmin('5fb043e99ac4ca626004e00f', data, res, type);
+                await fundAdmin('5fbc1777b7b30f00049eda53', data, res, type);
             } else {
                 data = Math.round(cash2 - (0.31 * cash2));
                 newvalues = {$set: {value: parseInt(result.value - parseInt(data + 20))}};
-                //await fundAdmin('5fb043e99ac4ca626004e00f', data, res, type);
+                await fundAdmin('5fbc1777b7b30f00049eda53', data, res, type);
             }
 
             await Wallet.updateOne({
@@ -157,28 +157,34 @@ async function fundAdmin(id, amount, res, type){
         let data;
         if(type){
             data = {
-                wallet_value : result.wallet_value + amount
+                wallet_value : parseInt(result.wallet_value - amount)
             };
         }else{
             data = {
-                wallet_value : parseInt(result.wallet_value - amount)
+                wallet_value : parseInt(result.wallet_value + amount)
             };
         }
         if (err) throw err;
-        await User.findByIdAndUpdate(id, data,{new : true}).then(user => {
-            if(!user) {
-                return res.status(404).send({
-                    message: "User not found with id " + id
-                });
-            }else{
-               return res.send(user);
-            }
-
-        }).catch(err => {
-            return res.status(500).send({
-                message: err.message ||  "Error updating user with id " + id
-            });
+        await User.updateOne({
+            "user_id": id,
+            "admin" : true
+        }, data, (err) => {
+            if (err) throw err;
         });
+        // await User.findByIdAndUpdate(id, data,{new : true}).then(user => {
+        //     if(!user) {
+        //         return res.status(404).send({
+        //             message: "User not found with id " + id
+        //         });
+        //     }else{
+        //        return res.send(user);
+        //     }
+        //
+        // }).catch(err => {
+        //     return res.status(500).send({
+        //         message: err.message ||  "Error updating user with id " + id
+        //     });
+        // });
     });
 
 }
