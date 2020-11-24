@@ -43,7 +43,7 @@ mongoose.connect(dbConfig.url, {
 //enable cors
 
 app.use(cors({
-    origin : ['http://localhost:8080', 'http://192.168.43.192:8080'],
+    origin : ['https://allthingsmore.online', 'http://localhost:8080', 'http://192.168.43.192:8080'],
     optionsSuccessStatus: 200,
     methods: "GET,PUT,POST,DELETE",
     preflightContinue: false,
