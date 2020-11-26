@@ -67,6 +67,8 @@ require('./app/routes/wallet.routes.js')(app);
 
 require('./app/routes/bet.routes.js')(app);
 
+require('./app/routes/transaction.routes.js')(app);
+
 
 
 // listen for requests

@@ -10,7 +10,7 @@ const UserSchema = mongoose.Schema({
     account_number: String,
     phone_number: Number,
     wallet_value : Number,
-    bank_code: Number,
+    bank_code: String,
     played : Number,
     userToken : String,
     admin : Boolean,

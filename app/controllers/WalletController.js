@@ -15,11 +15,6 @@ exports.actionWallet = async (req, res) => {
         });
     }
     let id = req.params.id;
-    // if(req.body.amount < 500 && req.body.type === 'credit'){
-    //     return res.status(400).send({
-    //         message : "You can't fund your wallet with anything lesser than 500"
-    //     })
-    // }
     await performTaskOnWallet(req.body.type, req.body.amount, id, res);
 }
 
